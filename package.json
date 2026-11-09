@@ -1,0 +1,21 @@
+{
+  "name": "gnome-altf4-menu",
+  "version": "0.1.0",
+  "description": "GNOME Shell extension that opens a power menu with Alt+F4 on the desktop or overview",
+  "private": true,
+  "type": "module",
+  "license": "GPL-3.0-or-later",
+  "author": "M. Saad Khan",
+  "scripts": {
+    "lint": "eslint .",
+    "test:unit": "node --test tests/*.test.js",
+    "test:smoke": "bash tests/smoke.sh",
+    "pack": "bash scripts/pack.sh",
+    "test": "npm run lint && npm run test:unit && npm run pack"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.14.0",
+    "globals": "^17.14.0"
+  }
+}
