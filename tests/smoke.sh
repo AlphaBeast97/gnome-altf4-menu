@@ -27,6 +27,8 @@ chmod 700 "${WORKDIR}/runtime"
 
 bash scripts/pack.sh >/dev/null
 unzip -q dist/*.shell-extension.zip -d "${EXTENSIONS}/${UUID}"
+# The installer compiles schemas from the shipped XML; do the same here.
+glib-compile-schemas "${EXTENSIONS}/${UUID}/schemas"
 cp -r tests/smoke-probe "${EXTENSIONS}/${PROBE_UUID}"
 
 GSETTINGS_BACKEND=keyfile XDG_CONFIG_HOME="${WORKDIR}/config" \
