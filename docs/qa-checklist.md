@@ -12,11 +12,11 @@ Cancel any destructive confirmation dialog instead of confirming it.
       has a visible focus highlight.
 - [ ] Clicking the action row opens the dropdown with the other available
       actions.
-- [ ] Up/Down moves focus through the open dropdown and wraps at both ends.
-- [ ] Enter selects the focused dropdown action and closes the dropdown.
-- [ ] With the dropdown closed, Up/Down changes the selected action.
-- [ ] Enter on the action row runs the selected action.
-- [ ] Space or a click opens the dropdown.
+- [ ] Up/Down changes the selected action (check mark) and wraps at both ends,
+      with the dropdown open or closed.
+- [ ] Enter runs the selected action immediately.
+- [ ] Space or a click opens and closes the dropdown.
+- [ ] Clicking an option selects it and closes the dropdown.
 - [ ] Escape closes an open dropdown first and closes the dialog second.
 - [ ] OK runs the selected action; Escape and the Cancel button close the
       dialog without running anything.

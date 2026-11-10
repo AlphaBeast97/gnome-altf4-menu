@@ -36,7 +36,6 @@ export default class AltF4PowerMenuExtension extends Extension {
     this._settings = this.getSettings();
     this._systemActions = SystemActions.getDefault();
     this._dialog = null;
-    this._dialogNavId = 0;
     this._stageKeyPressId = global.stage.connect(
       'key-press-event', this._onStageKeyPress.bind(this));
     this._resetDialogState();
@@ -47,8 +46,6 @@ export default class AltF4PowerMenuExtension extends Extension {
       global.stage.disconnect(this._stageKeyPressId);
       this._stageKeyPressId = 0;
     }
-
-    this._disconnectDialogNav();
 
     if (this._dialog) {
       const dialog = this._dialog;
@@ -142,7 +139,7 @@ export default class AltF4PowerMenuExtension extends Extension {
         style_class: 'altf4-power-option',
         child: content,
         x_expand: true,
-        can_focus: true,
+        can_focus: false,
         accessible_name: action.label,
       });
       row.connect('clicked', () => this._selectAction(action));
@@ -177,6 +174,8 @@ export default class AltF4PowerMenuExtension extends Extension {
       can_focus: true,
     });
     this._selector.connect('clicked', () => this._toggleOptions());
+    this._selector.connect(
+      'key-press-event', this._onSelectorKeyPress.bind(this));
 
     dialog.contentLayout.add_child(this._selector);
     dialog.contentLayout.add_child(this._options);
@@ -194,11 +193,7 @@ export default class AltF4PowerMenuExtension extends Extension {
     });
 
     this._dialog = dialog;
-    this._dialogNavId = global.stage.connect(
-      'captured-event', this._onDialogNavKeyPress.bind(this));
-    dialog.connect('closed', () => this._disconnectDialogNav());
     dialog.connect('destroy', () => {
-      this._disconnectDialogNav();
       if (this._dialog === dialog)
         this._dialog = null;
       this._resetDialogState();
@@ -229,6 +224,7 @@ export default class AltF4PowerMenuExtension extends Extension {
   }
 
   _toggleOptions() {
+    this._selector.grab_key_focus();
     if (this._options.visible)
       this._collapseOptions();
     else
@@ -238,8 +234,7 @@ export default class AltF4PowerMenuExtension extends Extension {
   _expandOptions() {
     this._options.show();
     this._chevron.icon_name = 'pan-up-symbolic';
-    const index = this._actions.indexOf(this._selectedAction);
-    this._optionButtons[index]?.grab_key_focus();
+    this._selector.grab_key_focus();
   }
 
   _collapseOptions() {
@@ -264,7 +259,7 @@ export default class AltF4PowerMenuExtension extends Extension {
     this._systemActions[action.activate]();
   }
 
-  _onDialogNavKeyPress(_stage, event) {
+  _onSelectorKeyPress(_selector, event) {
     if (event.type() !== Clutter.EventType.KEY_PRESS)
       return Clutter.EVENT_PROPAGATE;
 
@@ -273,8 +268,7 @@ export default class AltF4PowerMenuExtension extends Extension {
     const isEnter = symbol === Clutter.KEY_Return ||
       symbol === Clutter.KEY_KP_Enter ||
       symbol === Clutter.KEY_ISO_Enter;
-    if (isEnter && !this._options.visible &&
-        global.stage.key_focus === this._selector) {
+    if (isEnter) {
       this._activateSelected();
       return Clutter.EVENT_STOP;
     }
@@ -288,33 +282,15 @@ export default class AltF4PowerMenuExtension extends Extension {
     if (symbol !== Clutter.KEY_Up && symbol !== Clutter.KEY_Down)
       return Clutter.EVENT_PROPAGATE;
 
-    if (this._options.visible) {
-      const buttons = this._optionButtons;
-      const current = buttons.indexOf(global.stage.key_focus);
-      const direction = symbol === Clutter.KEY_Down ? 1 : -1;
-      const next = current === -1
-        ? (direction === 1 ? 0 : buttons.length - 1)
-        : (current + direction + buttons.length) % buttons.length;
-
-      buttons[next].grab_key_focus();
-      return Clutter.EVENT_STOP;
-    }
-
     const actions = this._actions;
     if (!actions?.length)
       return Clutter.EVENT_PROPAGATE;
 
     const current = actions.indexOf(this._selectedAction);
     const direction = symbol === Clutter.KEY_Down ? 1 : -1;
-    const next = (current + direction + actions.length) % actions.length;
-    this._selectAction(actions[next]);
+    this._selectedAction =
+      actions[(current + direction + actions.length) % actions.length];
+    this._updateSelector();
     return Clutter.EVENT_STOP;
-  }
-
-  _disconnectDialogNav() {
-    if (this._dialogNavId) {
-      global.stage.disconnect(this._dialogNavId);
-      this._dialogNavId = 0;
-    }
   }
 }

@@ -8,9 +8,9 @@ A GNOME Shell extension that brings Windows-style Alt+F4 behavior to GNOME:
 - Cancel or Escape closes the menu without changing that memory.
 
 The menu shows a single action row with a dropdown, like the Windows 11 power
-dialog. Open the dropdown to pick another action, then press OK. Up/Down
-changes the selection, Enter runs it, Space or a click opens the dropdown, and
-Escape closes the menu.
+dialog. Up/Down changes the selected action at any time, Enter runs it, Space
+or a click opens the dropdown, and Escape closes the menu. Picking an option
+from the dropdown with the mouse also selects it.
 
 It offers Lock Screen, Switch User…, Log Out…, Suspend, Restart…, and Power
 Off…. It uses GNOME's own `SystemActions`, so unavailable actions are omitted
