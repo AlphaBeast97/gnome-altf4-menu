@@ -4,6 +4,5 @@
   "description": "Opens a power menu with Alt+F4 on the desktop or overview. Alt+F4 still closes focused windows.",
   "shell-version": ["46", "47", "48", "49", "50", "51"],
   "settings-schema": "org.gnome.shell.extensions.altf4-power-menu",
-  "url": "https://github.com/AlphaBeast97/gnome-altf4-menu",
-  "version": 1
+  "url": "https://github.com/AlphaBeast97/gnome-altf4-menu"
 }

@@ -1,0 +1,6 @@
+{
+  "uuid": "altf4-smoke-probe@local",
+  "name": "Alt+F4 Smoke Probe",
+  "description": "Headless smoke-test helper.",
+  "shell-version": ["46", "47", "48", "49", "50", "51"]
+}

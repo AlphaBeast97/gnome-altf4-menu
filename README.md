@@ -1,5 +1,7 @@
 # Alt+F4 Power Menu
 
+![Power menu with all actions expanded](docs/screenshot.png)
+
 A GNOME Shell extension that brings Windows-style Alt+F4 behavior to GNOME:
 
 - With an application focused, Alt+F4 closes the window as usual.
@@ -23,7 +25,9 @@ and GNOME's native confirmation dialogs are used.
 
 ## Install
 
-Download or build the zip, then run:
+Download the zip from the
+[latest release](https://github.com/AlphaBeast97/gnome-altf4-menu/releases/latest),
+or build it with `npm run pack`, then run:
 
 ```bash
 gnome-extensions install --force altf4-power-menu@alphabeast97.github.io.shell-extension.zip

@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
+# Install the packed extension into a throwaway headless shell and confirm the
+# shell enables it without JS errors. Uses an in-shell probe extension because
+# the gnome-extensions CLI is unavailable or unreliable on some CI images.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
 UUID=altf4-power-menu@alphabeast97.github.io
+PROBE_UUID=altf4-smoke-probe@local
 
 if ! command -v gnome-shell >/dev/null ||
    ! gnome-shell --help 2>&1 | grep -q -- '--headless'; then
@@ -17,13 +21,19 @@ cleanup() {
 }
 trap cleanup EXIT
 
-mkdir -p "${WORKDIR}/data/gnome-shell/extensions" \
-  "${WORKDIR}/config" "${WORKDIR}/runtime"
+EXTENSIONS="${WORKDIR}/data/gnome-shell/extensions"
+mkdir -p "${EXTENSIONS}" "${WORKDIR}/config" "${WORKDIR}/runtime"
 chmod 700 "${WORKDIR}/runtime"
 
 bash scripts/pack.sh >/dev/null
-unzip -q dist/*.shell-extension.zip \
-  -d "${WORKDIR}/data/gnome-shell/extensions/${UUID}"
+unzip -q dist/*.shell-extension.zip -d "${EXTENSIONS}/${UUID}"
+cp -r tests/smoke-probe "${EXTENSIONS}/${PROBE_UUID}"
+
+GSETTINGS_BACKEND=keyfile XDG_CONFIG_HOME="${WORKDIR}/config" \
+  gsettings set org.gnome.shell enabled-extensions \
+  "['${UUID}', '${PROBE_UUID}']"
+GSETTINGS_BACKEND=keyfile XDG_CONFIG_HOME="${WORKDIR}/config" \
+  gsettings set org.gnome.shell welcome-dialog-last-shown-version '99.0'
 
 dbus-run-session -- bash -c '
   set -euo pipefail
@@ -33,7 +43,8 @@ dbus-run-session -- bash -c '
   export XDG_CONFIG_HOME="$data/config"
   export XDG_RUNTIME_DIR="$data/runtime"
   export XDG_DATA_DIRS=/usr/share
-  export GSETTINGS_BACKEND=memory
+  export GSETTINGS_BACKEND=keyfile
+  export ALTF4_SMOKE_OUT="$data/smoke-result"
 
   gnome-shell --headless --wayland \
     --wayland-display="altf4-smoke-$$" --virtual-monitor 1280x800 \
@@ -41,28 +52,20 @@ dbus-run-session -- bash -c '
   shell_pid=$!
   trap "kill $shell_pid 2>/dev/null || true" EXIT
 
-  found=
-  for _ in $(seq 1 50); do
-    if gnome-extensions list 2>/dev/null | grep -qx "$uuid"; then
-      found=1
-      break
-    fi
-    sleep 0.2
+  for _ in $(seq 1 80); do
+    [[ -f "$ALTF4_SMOKE_OUT" ]] && break
+    sleep 0.25
   done
 
-  if [[ -z "$found" ]]; then
-    echo "FAIL: extension was not listed by the shell" >&2
+  if [[ ! -f "$ALTF4_SMOKE_OUT" ]]; then
+    echo "FAIL: smoke probe never finished" >&2
     cat "$data/shell.log" >&2
     exit 1
   fi
 
-  gnome-extensions enable "$uuid"
-  sleep 2
-
-  info=$(gnome-extensions info "$uuid")
-  echo "$info"
-  if ! grep -q "State: ACTIVE" <<<"$info"; then
-    echo "FAIL: extension is not ACTIVE" >&2
+  result=$(cat "$ALTF4_SMOKE_OUT")
+  if [[ "$result" != "ACTIVE" ]]; then
+    echo "FAIL: extension state is $result" >&2
     cat "$data/shell.log" >&2
     exit 1
   fi
@@ -72,4 +75,6 @@ dbus-run-session -- bash -c '
     cat "$data/shell.log" >&2
     exit 1
   fi
+
+  echo "Smoke test passed: $uuid is ACTIVE and the shell log is clean"
 ' smoke "${WORKDIR}" "${UUID}"
