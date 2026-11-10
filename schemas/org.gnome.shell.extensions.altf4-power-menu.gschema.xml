@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.altf4-power-menu"
+          path="/org/gnome/shell/extensions/altf4-power-menu/">
+    <key name="last-action" type="s">
+      <default>''</default>
+      <summary>Last chosen power action</summary>
+      <description>Action id shown first when the power menu opens.</description>
+    </key>
+  </schema>
+</schemalist>
