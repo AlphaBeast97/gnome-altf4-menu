@@ -4,12 +4,17 @@ A GNOME Shell extension that brings Windows-style Alt+F4 behavior to GNOME:
 
 - With an application focused, Alt+F4 closes the window as usual.
 - On the desktop or in the overview, Alt+F4 opens a centered power menu.
-- The last action you chose is shown first the next time the menu opens.
+- The last action you chose is preselected the next time the menu opens.
 - Cancel or Escape closes the menu without changing that memory.
 
-The menu offers Lock Screen, Switch User…, Log Out…, Suspend, Restart…, and
-Power Off…. It uses GNOME's own `SystemActions`, so unavailable actions are
-omitted and GNOME's native confirmation dialogs are used.
+The menu shows a single action row with a dropdown, like the Windows 11 power
+dialog. Open the dropdown to pick another action, then press OK. Up/Down
+changes the selection, Enter runs it, Space or a click opens the dropdown, and
+Escape closes the menu.
+
+It offers Lock Screen, Switch User…, Log Out…, Suspend, Restart…, and Power
+Off…. It uses GNOME's own `SystemActions`, so unavailable actions are omitted
+and GNOME's native confirmation dialogs are used.
 
 ## Requirements
 

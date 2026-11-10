@@ -6,7 +6,7 @@ import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as ModalDialog from 'resource:///org/gnome/shell/ui/modalDialog.js';
 import * as SystemActions from 'resource:///org/gnome/shell/misc/systemActions.js';
 
-import {POWER_ACTIONS, orderActions, shouldHandleAltF4} from './lib/actions.js';
+import {POWER_ACTIONS, pickInitialAction, shouldHandleAltF4} from './lib/actions.js';
 
 const DISALLOWED_MODIFIERS = Clutter.ModifierType.CONTROL_MASK |
   Clutter.ModifierType.SHIFT_MASK |
@@ -22,15 +22,24 @@ function createVerticalBox(params) {
   return box;
 }
 
+function createActionContent(text) {
+  const content = new St.BoxLayout({
+    style_class: 'altf4-power-action-content',
+    x_expand: true,
+  });
+  content.add_child(new St.Label({text, x_expand: true}));
+  return content;
+}
+
 export default class AltF4PowerMenuExtension extends Extension {
   enable() {
     this._settings = this.getSettings();
     this._systemActions = SystemActions.getDefault();
     this._dialog = null;
-    this._dialogButtons = null;
     this._dialogNavId = 0;
     this._stageKeyPressId = global.stage.connect(
       'key-press-event', this._onStageKeyPress.bind(this));
+    this._resetDialogState();
   }
 
   disable() {
@@ -48,9 +57,21 @@ export default class AltF4PowerMenuExtension extends Extension {
       dialog.destroy();
     }
 
-    this._dialogButtons = null;
+    this._resetDialogState();
     this._settings = null;
     this._systemActions = null;
+  }
+
+  _resetDialogState() {
+    this._actions = null;
+    this._selectedAction = null;
+    this._selector = null;
+    this._selectorIcon = null;
+    this._selectorLabel = null;
+    this._chevron = null;
+    this._options = null;
+    this._optionButtons = null;
+    this._optionChecks = null;
   }
 
   _onStageKeyPress(_stage, event) {
@@ -76,6 +97,13 @@ export default class AltF4PowerMenuExtension extends Extension {
     if (this._dialog)
       return;
 
+    const actions = POWER_ACTIONS.filter(
+      action => this._systemActions[action.available]);
+    const selected = pickInitialAction(
+      actions, this._settings.get_string('last-action'));
+    if (!selected)
+      return;
+
     const dialog = new ModalDialog.ModalDialog({
       styleClass: 'altf4-power-dialog',
     });
@@ -86,47 +114,84 @@ export default class AltF4PowerMenuExtension extends Extension {
       x_align: Clutter.ActorAlign.CENTER,
     }));
 
-    const list = createVerticalBox({style_class: 'altf4-power-list'});
-    const actions = orderActions(
-      POWER_ACTIONS.filter(action => this._systemActions[action.available]),
-      this._settings.get_string('last-action'));
+    this._actions = actions;
+    this._selectedAction = selected;
 
-    this._dialogButtons = actions.map(action => {
-      const content = new St.BoxLayout({
-        style_class: 'altf4-power-action-content',
-      });
-      content.add_child(new St.Icon({
+    this._options = createVerticalBox({
+      style_class: 'altf4-power-options',
+      visible: false,
+    });
+    this._optionButtons = [];
+    this._optionChecks = [];
+
+    for (const action of actions) {
+      const content = createActionContent(action.label);
+      content.insert_child_at_index(new St.Icon({
         icon_name: action.icon,
         icon_size: 16,
         style_class: 'altf4-power-icon',
-      }));
-      content.add_child(new St.Label({text: action.label}));
+      }), 0);
+      const check = new St.Icon({
+        icon_name: 'object-select-symbolic',
+        icon_size: 14,
+        style_class: 'altf4-power-check',
+      });
+      content.add_child(check);
 
       const row = new St.Button({
-        style_class: 'altf4-power-action',
+        style_class: 'altf4-power-option',
         child: content,
         x_expand: true,
         can_focus: true,
         accessible_name: action.label,
       });
-      row.connect('clicked', () => {
-        this._settings.set_string('last-action', action.id);
-        this._dialog?.close();
-        this._systemActions[action.activate]();
-      });
-      list.add_child(row);
-      return row;
+      row.connect('clicked', () => this._selectAction(action));
+      this._optionButtons.push(row);
+      this._optionChecks.push(check);
+      this._options.add_child(row);
+    }
+
+    this._selectorIcon = new St.Icon({
+      icon_size: 16,
+      style_class: 'altf4-power-icon',
+    });
+    this._selectorLabel = new St.Label({x_expand: true});
+    this._chevron = new St.Icon({
+      icon_name: 'pan-down-symbolic',
+      icon_size: 12,
+      style_class: 'altf4-power-chevron',
     });
 
-    dialog.contentLayout.add_child(list);
+    const selectorContent = new St.BoxLayout({
+      style_class: 'altf4-power-action-content',
+      x_expand: true,
+    });
+    selectorContent.add_child(this._selectorIcon);
+    selectorContent.add_child(this._selectorLabel);
+    selectorContent.add_child(this._chevron);
+
+    this._selector = new St.Button({
+      style_class: 'altf4-power-selector',
+      child: selectorContent,
+      x_expand: true,
+      can_focus: true,
+    });
+    this._selector.connect('clicked', () => this._toggleOptions());
+
+    dialog.contentLayout.add_child(this._selector);
+    dialog.contentLayout.add_child(this._options);
+    this._updateSelector();
+
     dialog.addButton({
       label: 'Cancel',
       key: Clutter.KEY_Escape,
       action: () => dialog.close(),
     });
-
-    if (this._dialogButtons.length > 0)
-      dialog.setInitialKeyFocus(this._dialogButtons[0]);
+    dialog.addButton({
+      label: 'OK',
+      default: true,
+      action: () => this._activateSelected(),
+    });
 
     this._dialog = dialog;
     this._dialogNavId = global.stage.connect(
@@ -136,13 +201,67 @@ export default class AltF4PowerMenuExtension extends Extension {
       this._disconnectDialogNav();
       if (this._dialog === dialog)
         this._dialog = null;
-      this._dialogButtons = null;
+      this._resetDialogState();
     });
 
     if (!dialog.open()) {
       dialog.destroy();
       return;
     }
+
+    // Focus grabbed while the dialog was hidden does not paint the focus style.
+    this._selector.grab_key_focus();
+  }
+
+  _updateSelector() {
+    const action = this._selectedAction;
+    if (!action)
+      return;
+
+    this._selectorIcon.icon_name = action.icon;
+    this._selectorLabel.text = action.label;
+    this._selector.accessible_name = action.label;
+
+    const selectedIndex = this._actions.indexOf(action);
+    this._optionChecks.forEach((check, index) => {
+      check.visible = index === selectedIndex;
+    });
+  }
+
+  _toggleOptions() {
+    if (this._options.visible)
+      this._collapseOptions();
+    else
+      this._expandOptions();
+  }
+
+  _expandOptions() {
+    this._options.show();
+    this._chevron.icon_name = 'pan-up-symbolic';
+    const index = this._actions.indexOf(this._selectedAction);
+    this._optionButtons[index]?.grab_key_focus();
+  }
+
+  _collapseOptions() {
+    this._options.hide();
+    this._chevron.icon_name = 'pan-down-symbolic';
+  }
+
+  _selectAction(action) {
+    this._selectedAction = action;
+    this._updateSelector();
+    this._collapseOptions();
+    this._selector.grab_key_focus();
+  }
+
+  _activateSelected() {
+    const action = this._selectedAction;
+    if (!action)
+      return;
+
+    this._settings.set_string('last-action', action.id);
+    this._dialog?.close();
+    this._systemActions[action.activate]();
   }
 
   _onDialogNavKeyPress(_stage, event) {
@@ -150,20 +269,45 @@ export default class AltF4PowerMenuExtension extends Extension {
       return Clutter.EVENT_PROPAGATE;
 
     const symbol = event.get_key_symbol();
+
+    const isEnter = symbol === Clutter.KEY_Return ||
+      symbol === Clutter.KEY_KP_Enter ||
+      symbol === Clutter.KEY_ISO_Enter;
+    if (isEnter && !this._options.visible &&
+        global.stage.key_focus === this._selector) {
+      this._activateSelected();
+      return Clutter.EVENT_STOP;
+    }
+
+    if (symbol === Clutter.KEY_Escape && this._options.visible) {
+      this._collapseOptions();
+      this._selector.grab_key_focus();
+      return Clutter.EVENT_STOP;
+    }
+
     if (symbol !== Clutter.KEY_Up && symbol !== Clutter.KEY_Down)
       return Clutter.EVENT_PROPAGATE;
 
-    const buttons = this._dialogButtons;
-    if (!buttons?.length)
+    if (this._options.visible) {
+      const buttons = this._optionButtons;
+      const current = buttons.indexOf(global.stage.key_focus);
+      const direction = symbol === Clutter.KEY_Down ? 1 : -1;
+      const next = current === -1
+        ? (direction === 1 ? 0 : buttons.length - 1)
+        : (current + direction + buttons.length) % buttons.length;
+
+      buttons[next].grab_key_focus();
+      return Clutter.EVENT_STOP;
+    }
+
+    const actions = this._actions;
+    if (!actions?.length)
       return Clutter.EVENT_PROPAGATE;
 
-    const current = buttons.indexOf(global.stage.key_focus);
+    const current = actions.indexOf(this._selectedAction);
     const direction = symbol === Clutter.KEY_Down ? 1 : -1;
-    const next = current === -1
-      ? (direction === 1 ? 0 : buttons.length - 1)
-      : (current + direction + buttons.length) % buttons.length;
-
-    buttons[next].grab_key_focus();
+    const next = (current + direction + actions.length) % actions.length;
+    this._selectAction(actions[next]);
     return Clutter.EVENT_STOP;
   }
 

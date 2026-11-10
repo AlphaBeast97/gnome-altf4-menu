@@ -8,16 +8,28 @@ Cancel any destructive confirmation dialog instead of confirming it.
 - [ ] Alt+F4 with an application focused closes that application and does not
       open the power menu.
 - [ ] The dialog is centered.
-- [ ] Escape and the Cancel button close the dialog.
+- [ ] The menu opens with one action row showing the remembered action, and it
+      has a visible focus highlight.
+- [ ] Clicking the action row opens the dropdown with the other available
+      actions.
+- [ ] Up/Down moves focus through the open dropdown and wraps at both ends.
+- [ ] Enter selects the focused dropdown action and closes the dropdown.
+- [ ] With the dropdown closed, Up/Down changes the selected action.
+- [ ] Enter on the action row runs the selected action.
+- [ ] Space or a click opens the dropdown.
+- [ ] Escape closes an open dropdown first and closes the dialog second.
+- [ ] OK runs the selected action; Escape and the Cancel button close the
+      dialog without running anything.
 - [ ] Clicking outside the dialog does not close or pass through it.
-- [ ] Up/Down moves focus between the rows and wraps at both ends.
-- [ ] Enter activates the focused row.
 - [ ] Each of the six actions starts GNOME's native behavior or confirmation
       dialog: Lock Screen, Switch User, Log Out, Suspend, Restart, Power Off.
-- [ ] After choosing an action and reopening the menu, that action is first
-      and has keyboard focus.
+- [ ] After running an action and reopening the menu, that action is
+      preselected.
 - [ ] The last action survives a shell restart.
-- [ ] An unknown or unavailable saved action falls back to the default order.
+- [ ] Selecting a different action and pressing Cancel leaves the remembered
+      action unchanged.
+- [ ] An unknown or unavailable saved action falls back to the first available
+      action.
 - [ ] With Blur My Shell enabled and popup blur on, the dialog background is
       blurred and the rows are readable.
 - [ ] With Blur My Shell popup blur off, the dialog uses the normal theme

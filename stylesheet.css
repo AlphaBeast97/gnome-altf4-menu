@@ -1,14 +1,25 @@
+.altf4-power-dialog {
+  width: 20em;
+}
+
 .altf4-power-title {
   font-weight: bold;
   font-size: 1.1em;
   padding-bottom: 8px;
 }
 
-.altf4-power-list {
-  spacing: 4px;
+.altf4-power-selector {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(127, 127, 127, 0.35);
 }
 
-.altf4-power-action {
+.altf4-power-options {
+  spacing: 2px;
+  padding-top: 6px;
+}
+
+.altf4-power-option {
   padding: 8px 12px;
   border-radius: 8px;
 }
@@ -17,7 +28,9 @@
   spacing: 8px;
 }
 
-.altf4-power-action:hover,
-.altf4-power-action:focus {
+.altf4-power-selector:hover,
+.altf4-power-selector:focus,
+.altf4-power-option:hover,
+.altf4-power-option:focus {
   background-color: rgba(127, 127, 127, 0.18);
 }

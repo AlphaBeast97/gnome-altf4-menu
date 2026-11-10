@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   POWER_ACTIONS,
-  orderActions,
+  pickInitialAction,
   shouldHandleAltF4,
 } from '../lib/actions.js';
 
@@ -23,20 +23,11 @@ test('POWER_ACTIONS has complete, unique definitions', () => {
     POWER_ACTIONS.length);
 });
 
-test('orderActions moves the saved action first without mutating input', () => {
-  const input = [...POWER_ACTIONS];
-  const result = orderActions(input, 'power-off');
-  assert.equal(result[0].id, 'power-off');
-  assert.deepEqual(result.slice(1).map(action => action.id),
-    expectedIds.filter(id => id !== 'power-off'));
-  assert.equal(input[0].id, 'lock-screen');
-  assert.notEqual(result, input);
-});
-
-test('orderActions keeps default order for empty or unknown ids', () => {
-  assert.deepEqual(orderActions(POWER_ACTIONS, '').map(a => a.id), expectedIds);
-  assert.deepEqual(orderActions(POWER_ACTIONS, 'nope').map(a => a.id),
-    expectedIds);
+test('pickInitialAction preselects the saved action', () => {
+  assert.equal(pickInitialAction(POWER_ACTIONS, 'power-off').id, 'power-off');
+  assert.equal(pickInitialAction(POWER_ACTIONS, '').id, 'lock-screen');
+  assert.equal(pickInitialAction(POWER_ACTIONS, 'nope').id, 'lock-screen');
+  assert.equal(pickInitialAction([], 'power-off'), null);
 });
 
 test('shouldHandleAltF4 implements Windows behavior', () => {
