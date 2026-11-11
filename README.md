@@ -25,7 +25,10 @@ and GNOME's native confirmation dialogs are used.
 
 ## Install
 
-Download the zip from the
+Install it from
+[extensions.gnome.org](https://extensions.gnome.org/extension/11716/altf4-power-menu/).
+
+Alternatively, download the zip from the
 [latest release](https://github.com/AlphaBeast97/gnome-altf4-menu/releases/latest),
 or build it with `npm run pack`, then run:
 
