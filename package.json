@@ -1,6 +1,6 @@
 {
   "name": "gnome-altf4-menu",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "GNOME Shell extension that opens a power menu with Alt+F4 on the desktop or overview",
   "private": true,
   "type": "module",
