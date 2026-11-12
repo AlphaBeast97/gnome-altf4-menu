@@ -1,4 +1,7 @@
-# Alt+F4 Power Menu
+<p align="center">
+ <img src="docs/icon.png" alt="Alt+F4 Power Menu icon" width="128" height="128">
+</p>
+<h1 align="center">Alt+F4 Power Menu</h1>
 
 ![Power menu with all actions expanded](docs/screenshot.png)
 
