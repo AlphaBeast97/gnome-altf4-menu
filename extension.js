@@ -7,10 +7,7 @@ import * as ModalDialog from 'resource:///org/gnome/shell/ui/modalDialog.js';
 import * as SystemActions from 'resource:///org/gnome/shell/misc/systemActions.js';
 
 import {POWER_ACTIONS, pickInitialAction, shouldHandleAltF4} from './lib/actions.js';
-
-const DISALLOWED_MODIFIERS = Clutter.ModifierType.CONTROL_MASK |
-  Clutter.ModifierType.SHIFT_MASK |
-  Clutter.ModifierType.SUPER_MASK;
+import {matchesShortcut} from './lib/shortcut.js';
 
 function createVerticalBox(params) {
   const box = new St.BoxLayout(params);
@@ -36,6 +33,11 @@ export default class AltF4PowerMenuExtension extends Extension {
     this._settings = this.getSettings();
     this._systemActions = SystemActions.getDefault();
     this._dialog = null;
+    this._loadShortcut();
+    this._settingsChangedId = this._settings.connect('changed', (_settings, key) => {
+      if (key.startsWith('shortcut-'))
+        this._loadShortcut();
+    });
     this._stageKeyPressId = global.stage.connect(
       'key-press-event', this._onStageKeyPress.bind(this));
     this._resetDialogState();
@@ -45,6 +47,11 @@ export default class AltF4PowerMenuExtension extends Extension {
     if (this._stageKeyPressId) {
       global.stage.disconnect(this._stageKeyPressId);
       this._stageKeyPressId = 0;
+    }
+
+    if (this._settingsChangedId) {
+      this._settings.disconnect(this._settingsChangedId);
+      this._settingsChangedId = 0;
     }
 
     if (this._dialog) {
@@ -71,13 +78,14 @@ export default class AltF4PowerMenuExtension extends Extension {
     this._optionChecks = null;
   }
 
-  _onStageKeyPress(_stage, event) {
-    if (event.get_key_symbol() !== Clutter.KEY_F4)
-      return Clutter.EVENT_PROPAGATE;
+  _loadShortcut() {
+    this._shortcutKeyval = this._settings.get_uint('shortcut-keysym');
+    this._shortcutMods = this._settings.get_uint('shortcut-mods');
+  }
 
-    const state = event.get_state();
-    if (!(state & Clutter.ModifierType.MOD1_MASK) ||
-        (state & DISALLOWED_MODIFIERS))
+  _onStageKeyPress(_stage, event) {
+    if (!matchesShortcut(event.get_key_symbol(), event.get_state(),
+      this._shortcutKeyval, this._shortcutMods))
       return Clutter.EVENT_PROPAGATE;
 
     if (!shouldHandleAltF4({

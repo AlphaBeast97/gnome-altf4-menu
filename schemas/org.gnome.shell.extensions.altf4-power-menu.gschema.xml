@@ -7,5 +7,15 @@
       <summary>Last chosen power action</summary>
       <description>Action id shown first when the power menu opens.</description>
     </key>
+    <key name="shortcut-keysym" type="u">
+      <default>65473</default>
+      <summary>Power menu shortcut key</summary>
+      <description>X11 key symbol of the shortcut. The default is F4.</description>
+    </key>
+    <key name="shortcut-mods" type="u">
+      <default>4</default>
+      <summary>Power menu shortcut modifiers</summary>
+      <description>Shift=1, Control=2, Alt=4, Super=8. The default is Alt.</description>
+    </key>
   </schema>
 </schemalist>

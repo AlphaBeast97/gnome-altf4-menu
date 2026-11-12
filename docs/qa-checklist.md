@@ -7,6 +7,20 @@ Cancel any destructive confirmation dialog instead of confirming it.
 - [ ] Alt+F4 in the overview opens the power menu.
 - [ ] Alt+F4 with an application focused closes that application and does not
       open the power menu.
+- [ ] The extension's Settings page shows the shortcut row with Alt+F4 and a
+      Reset row.
+- [ ] Clicking the shortcut row opens the capture dialog.
+- [ ] Escape and the Cancel button close the capture dialog without changing
+      the shortcut.
+- [ ] Modifier-only presses are ignored, and a key without a modifier is
+      rejected with a hint.
+- [ ] The capture dialog's Use Alt+F4 button keeps or restores Alt+F4.
+- [ ] Setting Ctrl+Alt+P makes that combination open the menu on the desktop,
+      and Alt+F4 no longer opens it there.
+- [ ] Reset restores Alt+F4.
+- [ ] With a custom shortcut set, an application-focused window still receives
+      its own shortcuts unchanged.
+- [ ] The chosen shortcut survives a shell restart.
 - [ ] The dialog is centered.
 - [ ] The menu opens with one action row showing the remembered action, and it
       has a visible focus highlight.

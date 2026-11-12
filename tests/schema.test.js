@@ -19,3 +19,10 @@ test('schema stores the last chosen action', () => {
   assert.match(schema, /<key name="last-action" type="s">/);
   assert.match(schema, /<default>''<\/default>/);
 });
+
+test('schema stores the power menu shortcut', () => {
+  assert.match(schema, /<key name="shortcut-keysym" type="u">/);
+  assert.match(schema, /<default>65473<\/default>/);
+  assert.match(schema, /<key name="shortcut-mods" type="u">/);
+  assert.match(schema, /<default>4<\/default>/);
+});

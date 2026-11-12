@@ -6,6 +6,8 @@ A GNOME Shell extension that brings Windows-style Alt+F4 behavior to GNOME:
 
 - With an application focused, Alt+F4 closes the window as usual.
 - On the desktop or in the overview, Alt+F4 opens a centered power menu.
+- The shortcut is configurable in the extension's settings and defaults to
+  Alt+F4.
 - The last action you chose is preselected the next time the menu opens.
 - Cancel or Escape closes the menu without changing that memory.
 
@@ -44,6 +46,20 @@ gnome-extensions info altf4-power-menu@alphabeast97.github.io
 ```
 
 `gnome-extensions info` should report `State: ACTIVE`.
+
+## Shortcut
+
+Open the extension's settings (Extensions → Alt+F4 Power Menu → Settings),
+click the shortcut row, and press the new combination. A modifier key
+(Shift, Ctrl, Alt or Super) is required. The chosen shortcut replaces Alt+F4,
+and the Reset button restores Alt+F4.
+
+The shortcut only opens the menu on the desktop or in the overview. With a
+window focused, it is left to the application and GNOME.
+
+Alt+F4 is GNOME's own close-window shortcut, so pressing it while the capture
+dialog is open closes the dialog instead of recording it. Use the dialog's
+**Use Alt+F4** button to select it.
 
 ## Blur My Shell
 
