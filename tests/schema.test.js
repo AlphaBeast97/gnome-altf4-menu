@@ -26,3 +26,9 @@ test('schema stores the power menu shortcut', () => {
   assert.match(schema, /<key name="shortcut-mods" type="u">/);
   assert.match(schema, /<default>4<\/default>/);
 });
+
+test('schema stores visible power menu actions', () => {
+  assert.match(schema, /<key name="visible-actions" type="as">/);
+  assert.match(schema, /'lock-screen'/);
+  assert.match(schema, /'power-off'/);
+});

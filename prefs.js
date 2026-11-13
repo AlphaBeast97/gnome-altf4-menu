@@ -10,6 +10,11 @@ import {
   modifiersFromState,
   modifiersToGdk,
 } from './lib/shortcut.js';
+import {
+  POWER_ACTIONS,
+  POWER_ACTION_IDS,
+  toggleActionVisibility,
+} from './lib/actions.js';
 
 // Gdk.keyval_is_modifier() is not introspectable in GJS.
 const MODIFIER_KEYVALS = new Set([
@@ -33,9 +38,9 @@ export default class AltF4PowerMenuPreferences extends ExtensionPreferences {
     });
 
     function updateLabel() {
-      shortcutLabel.accelerator = Gtk.accelerator_name(
-        settings.get_uint('shortcut-keysym'),
-        modifiersToGdk(settings.get_uint('shortcut-mods')));
+      const keyval = settings.get_uint('shortcut-keysym');
+      shortcutLabel.accelerator = keyval ? Gtk.accelerator_name(
+        keyval, modifiersToGdk(settings.get_uint('shortcut-mods'))) : '';
     }
 
     function save(keyval, mods) {
@@ -54,8 +59,12 @@ export default class AltF4PowerMenuPreferences extends ExtensionPreferences {
       });
 
       const hint = new Gtk.Label({
-        label: 'Hold Shift, Ctrl, Alt or Super with another key. ' +
-          'A modifier alone is not enough.',
+        label: 'With Super, Ctrl or Alt',
+        css_classes: ['dim-label'],
+        justify: Gtk.Justification.CENTER,
+      });
+      const instruction = new Gtk.Label({
+        label: 'Hold a modifier with another key',
         css_classes: ['dim-label'],
         wrap: true,
         justify: Gtk.Justification.CENTER,
@@ -75,6 +84,32 @@ export default class AltF4PowerMenuPreferences extends ExtensionPreferences {
       const cancel = new Gtk.Button({label: 'Cancel'});
       cancel.connect('clicked', () => dialog.close());
 
+      const keyHint = new Gtk.Label({
+        label: 'Esc',
+        css_classes: ['dim-label', 'caption-heading'],
+      });
+      const cancelHint = new Gtk.Label({
+        label: 'Cancel',
+        css_classes: ['dim-label'],
+      });
+      const backspaceHint = new Gtk.Label({
+        label: 'Backspace',
+        css_classes: ['dim-label', 'caption-heading'],
+      });
+      const removeHint = new Gtk.Label({
+        label: 'Remove',
+        css_classes: ['dim-label'],
+      });
+      const hints = new Gtk.Box({
+        orientation: Gtk.Orientation.HORIZONTAL,
+        spacing: 6,
+        halign: Gtk.Align.CENTER,
+      });
+      hints.append(keyHint);
+      hints.append(cancelHint);
+      hints.append(backspaceHint);
+      hints.append(removeHint);
+
       const buttons = new Gtk.Box({
         orientation: Gtk.Orientation.HORIZONTAL,
         spacing: 12,
@@ -91,7 +126,21 @@ export default class AltF4PowerMenuPreferences extends ExtensionPreferences {
         margin_start: 24,
         margin_end: 24,
       });
+      const icon = new Gtk.Image({
+        icon_name: 'preferences-desktop-keyboard-shortcuts-symbolic',
+        pixel_size: 48,
+      });
+      const title = new Gtk.Label({
+        label: 'Press the new shortcut',
+        css_classes: ['title-2'],
+        halign: Gtk.Align.CENTER,
+      });
+      icon.add_css_class('large-icons');
+      box.append(icon);
+      box.append(title);
       box.append(hint);
+      box.append(instruction);
+      box.append(hints);
       box.append(caveat);
       box.append(buttons);
 
@@ -104,6 +153,12 @@ export default class AltF4PowerMenuPreferences extends ExtensionPreferences {
       controller.set_propagation_phase(Gtk.PropagationPhase.CAPTURE);
       controller.connect('key-pressed', (_controller, keyval, _keycode, state) => {
         if (keyval === Gdk.KEY_Escape) {
+          dialog.close();
+          return true;
+        }
+
+        if (keyval === Gdk.KEY_BackSpace) {
+          save(0, 0);
           dialog.close();
           return true;
         }
@@ -147,8 +202,42 @@ export default class AltF4PowerMenuPreferences extends ExtensionPreferences {
     group.add(shortcutRow);
     group.add(resetRow);
 
+    const actionsGroup = new Adw.PreferencesGroup({
+      title: 'Visible options',
+      description: 'Choose which actions appear in the power menu.',
+    });
+    const actionSwitches = new Map();
+    for (const action of POWER_ACTIONS) {
+      const actionRow = new Adw.ActionRow({
+        title: action.label,
+        activatable: true,
+      });
+      const actionSwitch = new Gtk.Switch({
+        valign: Gtk.Align.CENTER,
+        active: settings.get_strv('visible-actions').includes(action.id),
+      });
+      actionSwitch.connect('state-set', (_switch, state) => {
+        const current = settings.get_strv('visible-actions');
+        const next = toggleActionVisibility(current, action.id, state);
+        if (next.join('\0') === current.join('\0'))
+          return true;
+        settings.set_strv('visible-actions', next);
+        return false;
+      });
+      actionRow.add_suffix(actionSwitch);
+      actionRow.activatable_widget = actionSwitch;
+      actionsGroup.add(actionRow);
+      actionSwitches.set(action.id, actionSwitch);
+    }
+    settings.connect('changed::visible-actions', () => {
+      const visible = settings.get_strv('visible-actions');
+      for (const id of POWER_ACTION_IDS)
+        actionSwitches.get(id).set_active(visible.includes(id));
+    });
+
     const page = new Adw.PreferencesPage();
     page.add(group);
+    page.add(actionsGroup);
     window.add(page);
 
     updateLabel();

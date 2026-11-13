@@ -17,5 +17,10 @@
       <summary>Power menu shortcut modifiers</summary>
       <description>Shift=1, Control=2, Alt=4, Super=8. The default is Alt.</description>
     </key>
+    <key name="visible-actions" type="as">
+      <default>['lock-screen', 'switch-user', 'logout', 'suspend', 'restart', 'power-off']</default>
+      <summary>Visible power menu actions</summary>
+      <description>Action IDs that appear in the power menu.</description>
+    </key>
   </schema>
 </schemalist>
