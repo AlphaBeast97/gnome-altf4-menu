@@ -6,7 +6,12 @@ import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as ModalDialog from 'resource:///org/gnome/shell/ui/modalDialog.js';
 import * as SystemActions from 'resource:///org/gnome/shell/misc/systemActions.js';
 
-import {POWER_ACTIONS, pickInitialAction, shouldHandleAltF4} from './lib/actions.js';
+import {
+  POWER_ACTIONS,
+  filterAvailableActions,
+  pickInitialAction,
+  shouldHandleAltF4,
+} from './lib/actions.js';
 import {matchesShortcut} from './lib/shortcut.js';
 
 function createVerticalBox(params) {
@@ -102,8 +107,9 @@ export default class AltF4PowerMenuExtension extends Extension {
     if (this._dialog)
       return;
 
-    const actions = POWER_ACTIONS.filter(
-      action => this._systemActions[action.available]);
+    const actions = filterAvailableActions(
+      POWER_ACTIONS, this._settings.get_strv('visible-actions'),
+      this._systemActions, this._settings.get_strv('action-order'));
     const selected = pickInitialAction(
       actions, this._settings.get_string('last-action'));
     if (!selected)

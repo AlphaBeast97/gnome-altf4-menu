@@ -11,6 +11,9 @@ A GNOME Shell extension that brings Windows-style Alt+F4 behavior to GNOME:
 - On the desktop or in the overview, Alt+F4 opens a centered power menu.
 - The shortcut is configurable in the extension's settings and defaults to
   Alt+F4.
+- The power-menu actions can be enabled or hidden individually.
+- Power-menu actions can be reordered by dragging them in the extension's
+  settings.
 - The last action you chose is preselected the next time the menu opens.
 - Cancel or Escape closes the menu without changing that memory.
 
@@ -22,6 +25,13 @@ from the dropdown with the mouse also selects it.
 It offers Lock Screen, Switch User…, Log Out…, Suspend, Restart…, and Power
 Off…. It uses GNOME's own `SystemActions`, so unavailable actions are omitted
 and GNOME's native confirmation dialogs are used.
+
+## Power-menu options
+
+Open the extension's settings and use the switches under **Visible options** to
+choose which actions appear. Drag the handle beside an action to change its
+order. Disabled actions keep their position and return to that position if
+enabled again. At least one action must remain enabled.
 
 ## Requirements
 
@@ -41,9 +51,11 @@ or build it with `npm run pack`, then run:
 gnome-extensions install --force altf4-power-menu@alphabeast97.github.io.shell-extension.zip
 ```
 
-Log out and back in so GNOME Shell discovers the new extension, then enable it:
+Reload the extension after installing it, then enable it. If GNOME Shell does
+not pick up the new version, log out and back in:
 
 ```bash
+gnome-extensions disable altf4-power-menu@alphabeast97.github.io 2>/dev/null || true
 gnome-extensions enable altf4-power-menu@alphabeast97.github.io
 gnome-extensions info altf4-power-menu@alphabeast97.github.io
 ```
