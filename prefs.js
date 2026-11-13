@@ -15,6 +15,7 @@ import {
   normalizeActionIds,
   POWER_ACTIONS,
   POWER_ACTION_IDS,
+  reorderActionIds,
   toggleActionVisibility,
 } from './lib/actions.js';
 
@@ -218,23 +219,19 @@ export default class AltF4PowerMenuPreferences extends ExtensionPreferences {
       settings.get_strv('action-order'));
 
     function saveOrder(order) {
-      settings.set_strv('visible-actions', order);
+      settings.set_strv('action-order', order);
     }
 
     function reorder(sourceId, targetId, targetY, targetHeight) {
-      if (sourceId === targetId)
-        return;
-
-      const order = actionOrder();
-      const sourceIndex = order.indexOf(sourceId);
-      order.splice(sourceIndex, 1);
-      const targetIndex = order.indexOf(targetId);
-      const insertAt = targetIndex + (targetY > targetHeight / 2 ? 1 : 0);
-      order.splice(insertAt, 0, sourceId);
-      saveOrder(order);
+      saveOrder(reorderActionIds(actionOrder(), sourceId, targetId,
+        targetY > targetHeight / 2));
     }
 
     function refreshActionRows() {
+      for (const row of actionRows.values()) {
+        if (row.get_parent() === actionList)
+          actionList.remove(row);
+      }
       for (const id of actionOrder())
         actionList.append(actionRows.get(id));
     }

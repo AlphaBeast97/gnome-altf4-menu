@@ -6,6 +6,7 @@ import {
   filterAvailableActions,
   normalizeActionIds,
   pickInitialAction,
+  reorderActionIds,
   shouldHandleAltF4,
   toggleActionVisibility,
 } from '../lib/actions.js';
@@ -49,6 +50,18 @@ test('power actions can be filtered by settings and availability', () => {
 test('action order preserves saved order and appends missing actions', () => {
   assert.deepEqual(normalizeActionIds(['restart', 'lock-screen', 'restart']), [
     'restart', 'lock-screen', 'switch-user', 'logout', 'suspend', 'power-off',
+  ]);
+});
+
+test('action rows can be reordered above or below a target', () => {
+  const order = ['lock-screen', 'switch-user', 'logout', 'suspend'];
+  assert.deepEqual(reorderActionIds(order, 'suspend', 'lock-screen'), [
+    'suspend', 'lock-screen', 'switch-user', 'logout',
+    'restart', 'power-off',
+  ]);
+  assert.deepEqual(reorderActionIds(order, 'lock-screen', 'suspend', true), [
+    'switch-user', 'logout', 'suspend', 'lock-screen',
+    'restart', 'power-off',
   ]);
 });
 
