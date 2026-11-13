@@ -22,5 +22,10 @@
       <summary>Visible power menu actions</summary>
       <description>Action IDs that appear in the power menu.</description>
     </key>
+    <key name="action-order" type="as">
+      <default>['lock-screen', 'switch-user', 'logout', 'suspend', 'restart', 'power-off']</default>
+      <summary>Power menu action order</summary>
+      <description>Order of actions in the power menu and preferences.</description>
+    </key>
   </schema>
 </schemalist>

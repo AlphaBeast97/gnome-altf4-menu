@@ -109,7 +109,7 @@ export default class AltF4PowerMenuExtension extends Extension {
 
     const actions = filterAvailableActions(
       POWER_ACTIONS, this._settings.get_strv('visible-actions'),
-      this._systemActions);
+      this._systemActions, this._settings.get_strv('action-order'));
     const selected = pickInitialAction(
       actions, this._settings.get_string('last-action'));
     if (!selected)

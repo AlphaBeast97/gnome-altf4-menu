@@ -1,5 +1,6 @@
 import Adw from 'gi://Adw';
 import Gdk from 'gi://Gdk';
+import GObject from 'gi://GObject';
 import Gtk from 'gi://Gtk';
 
 import {ExtensionPreferences} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
@@ -11,6 +12,7 @@ import {
   modifiersToGdk,
 } from './lib/shortcut.js';
 import {
+  normalizeActionIds,
   POWER_ACTIONS,
   POWER_ACTION_IDS,
   toggleActionVisibility,
@@ -204,13 +206,48 @@ export default class AltF4PowerMenuPreferences extends ExtensionPreferences {
 
     const actionsGroup = new Adw.PreferencesGroup({
       title: 'Visible options',
-      description: 'Choose which actions appear in the power menu.',
+      description: 'Choose which actions appear in the power menu. Drag to reorder.',
+    });
+    const actionList = new Gtk.ListBox({
+      selection_mode: Gtk.SelectionMode.NONE,
+      css_classes: ['boxed-list'],
     });
     const actionSwitches = new Map();
+    const actionRows = new Map();
+    const actionOrder = () => normalizeActionIds(
+      settings.get_strv('action-order'));
+
+    function saveOrder(order) {
+      settings.set_strv('visible-actions', order);
+    }
+
+    function reorder(sourceId, targetId, targetY, targetHeight) {
+      if (sourceId === targetId)
+        return;
+
+      const order = actionOrder();
+      const sourceIndex = order.indexOf(sourceId);
+      order.splice(sourceIndex, 1);
+      const targetIndex = order.indexOf(targetId);
+      const insertAt = targetIndex + (targetY > targetHeight / 2 ? 1 : 0);
+      order.splice(insertAt, 0, sourceId);
+      saveOrder(order);
+    }
+
+    function refreshActionRows() {
+      for (const id of actionOrder())
+        actionList.append(actionRows.get(id));
+    }
+
     for (const action of POWER_ACTIONS) {
       const actionRow = new Adw.ActionRow({
         title: action.label,
         activatable: true,
+      });
+      const dragHandle = new Gtk.Label({
+        label: '⋮⋮',
+        tooltip_text: 'Drag to reorder',
+        css_classes: ['dim-label'],
       });
       const actionSwitch = new Gtk.Switch({
         valign: Gtk.Align.CENTER,
@@ -218,22 +255,41 @@ export default class AltF4PowerMenuPreferences extends ExtensionPreferences {
       });
       actionSwitch.connect('state-set', (_switch, state) => {
         const current = settings.get_strv('visible-actions');
-        const next = toggleActionVisibility(current, action.id, state);
+        const next = toggleActionVisibility(current, action.id, state,
+          actionOrder());
         if (next.join('\0') === current.join('\0'))
           return true;
         settings.set_strv('visible-actions', next);
         return false;
       });
+      const dragSource = new Gtk.DragSource({actions: Gdk.DragAction.MOVE});
+      dragSource.connect('prepare', () =>
+        Gdk.ContentProvider.new_for_value(action.id));
+      dragHandle.add_controller(dragSource);
+
+      const dropTarget = Gtk.DropTarget.new(
+        GObject.TYPE_STRING, Gdk.DragAction.MOVE);
+      dropTarget.connect('drop', (_target, value, _x, y) => {
+        reorder(value, action.id, y, actionRow.get_height());
+        return true;
+      });
+      actionRow.add_controller(dropTarget);
+      actionRow.add_suffix(dragHandle);
       actionRow.add_suffix(actionSwitch);
       actionRow.activatable_widget = actionSwitch;
-      actionsGroup.add(actionRow);
       actionSwitches.set(action.id, actionSwitch);
+      actionRows.set(action.id, actionRow);
     }
-    settings.connect('changed::visible-actions', () => {
+    refreshActionRows();
+    actionsGroup.add(actionList);
+    function refreshPreferences() {
       const visible = settings.get_strv('visible-actions');
       for (const id of POWER_ACTION_IDS)
         actionSwitches.get(id).set_active(visible.includes(id));
-    });
+      refreshActionRows();
+    }
+    settings.connect('changed::visible-actions', refreshPreferences);
+    settings.connect('changed::action-order', refreshPreferences);
 
     const page = new Adw.PreferencesPage();
     page.add(group);

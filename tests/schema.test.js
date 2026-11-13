@@ -32,3 +32,8 @@ test('schema stores visible power menu actions', () => {
   assert.match(schema, /'lock-screen'/);
   assert.match(schema, /'power-off'/);
 });
+
+test('schema stores power menu action order', () => {
+  assert.match(schema, /<key name="action-order" type="as">/);
+  assert.match(schema, /<summary>Power menu action order<\/summary>/);
+});

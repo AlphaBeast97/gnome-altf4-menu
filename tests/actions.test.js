@@ -4,6 +4,7 @@ import {
   POWER_ACTIONS,
   POWER_ACTION_IDS,
   filterAvailableActions,
+  normalizeActionIds,
   pickInitialAction,
   shouldHandleAltF4,
   toggleActionVisibility,
@@ -36,12 +37,19 @@ test('power actions can be filtered by settings and availability', () => {
     canPowerOff: true,
   };
   const actions = filterAvailableActions(POWER_ACTIONS,
-    ['power-off', 'unknown', 'switch-user', 'lock-screen'], systemActions);
+    ['power-off', 'unknown', 'switch-user', 'lock-screen'], systemActions,
+    ['power-off', 'switch-user', 'lock-screen']);
   assert.deepEqual(actions.map(action => action.id),
-    ['lock-screen', 'power-off']);
+    ['power-off', 'lock-screen']);
   assert.deepEqual(filterAvailableActions(POWER_ACTIONS, ['unknown'],
     systemActions).map(action => action.id),
   ['lock-screen', 'logout', 'suspend', 'restart', 'power-off']);
+});
+
+test('action order preserves saved order and appends missing actions', () => {
+  assert.deepEqual(normalizeActionIds(['restart', 'lock-screen', 'restart']), [
+    'restart', 'lock-screen', 'switch-user', 'logout', 'suspend', 'power-off',
+  ]);
 });
 
 test('visibility settings always retain one action', () => {
@@ -51,6 +59,8 @@ test('visibility settings always retain one action', () => {
     ['power-off']);
   assert.deepEqual(toggleActionVisibility(['lock-screen'], 'power-off', true),
     ['lock-screen', 'power-off']);
+  assert.deepEqual(toggleActionVisibility(['lock-screen'], 'power-off', true,
+    ['power-off', 'lock-screen']), ['power-off', 'lock-screen']);
 });
 
 test('pickInitialAction preselects the saved action', () => {
