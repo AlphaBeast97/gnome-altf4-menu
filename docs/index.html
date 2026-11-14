@@ -127,6 +127,15 @@
 
     .story { display: grid; grid-template-columns: .8fr 1.2fr; gap: 7rem; padding: 8rem 0; }
     .story h2 { max-width: 390px; margin: 0; font-size: clamp(2.2rem, 4vw, 4rem); }
+    .dialog-shot {
+      display: block;
+      width: min(100%, 344px);
+      margin-top: 2.4rem;
+      border: 1px solid rgba(245,243,238,.18);
+      border-radius: 15px;
+      box-shadow: 16px 18px 0 rgba(0,0,0,.18), 0 24px 44px rgba(0,0,0,.2);
+      transform: rotate(-2deg);
+    }
     .story-copy { max-width: 560px; color: var(--muted); }
     .story-copy p { margin: 0 0 1.4rem; }
     .keyline { display: inline-flex; align-items: center; gap: .5rem; margin-top: .6rem; color: var(--ink); font-weight: 600; }
@@ -204,7 +213,10 @@
     </section>
 
     <section class="story wrap" id="why">
-      <h2>One shortcut.<br>More control.</h2>
+      <div>
+        <h2>One shortcut.<br>More control.</h2>
+        <img class="dialog-shot" src="power-dialog.png" alt="The compact Alt+F4 Power Menu dialog">
+      </div>
       <div class="story-copy">
         <p>Alt+F4 Power Menu brings a Windows-style power dialog to GNOME without getting in the way of the desktop. Use Alt+F4 or choose another shortcut combination in Settings, then pick an action with the keyboard or mouse.</p>
         <p>Lock Screen, Switch User, Log Out, Suspend, Restart, and Power Off are backed by GNOME’s own system actions. Unavailable actions disappear automatically, and GNOME handles confirmation dialogs natively.</p>
