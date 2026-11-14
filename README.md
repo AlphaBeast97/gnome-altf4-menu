@@ -3,7 +3,11 @@
 </p>
 <h1 align="center">Alt+F4 Power Menu</h1>
 
-![Power menu with all actions expanded](docs/screenshot.png)
+<p align="center">
+  <img src="docs/powermenu-480p.gif" alt="Alt+F4 Power Menu demo" width="608">
+</p>
+
+<p align="center"><em>Blur My Shell is recommended for the blurred backdrop shown in this demo.</em></p>
 
 A GNOME Shell extension that brings Windows-style Alt+F4 behavior to GNOME:
 
@@ -36,7 +40,7 @@ enabled again. At least one action must remain enabled.
 ## Requirements
 
 - GNOME Shell 46–51
-- Blur My Shell is optional
+- Blur My Shell is recommended
 
 ## Install
 
