@@ -1,8 +1,11 @@
 <p align="center">
- <img src="docs/icon.png" alt="Alt+F4 Power Menu icon" width="128" height="128">
+  <img src="docs/icon.png" alt="Alt+F4 Power Menu icon" width="128" height="128">
 </p>
 <h1 align="center">Alt+F4 Power Menu</h1>
 
+<p align="center"><a href="https://alphabeast97.github.io/gnome-altf4-menu/"><strong>Visit the project website →</strong></a></p>
+
+<p align="center"><em>The demo animation may take a moment to load.</em></p>
 <p align="center">
   <img src="docs/powermenu-480p.gif" alt="Alt+F4 Power Menu demo" width="608">
 </p>

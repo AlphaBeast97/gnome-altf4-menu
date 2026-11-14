@@ -107,6 +107,10 @@
     }
     .demo-frame {
       position: relative;
+      display: grid;
+      place-items: center;
+      min-height: 360px;
+      overflow: hidden;
       padding: .8rem;
       border: 1px solid rgba(245,243,238,.2);
       border-radius: 16px;
@@ -116,6 +120,25 @@
     }
     .demo-frame::after { content: ''; position: absolute; inset: .8rem; border: 1px solid rgba(184,167,255,.2); border-radius: 10px; pointer-events: none; }
     .demo-frame img { display: block; width: 100%; height: auto; border-radius: 10px; }
+    .demo-gif { position: relative; z-index: 1; transition: opacity .35s ease; }
+    .demo-frame.is-loading .demo-gif { opacity: 0; }
+    .demo-placeholder {
+      position: absolute;
+      inset: .8rem;
+      display: grid;
+      place-items: center;
+      align-content: center;
+      gap: .75rem;
+      border-radius: 10px;
+      color: var(--muted);
+      background: linear-gradient(145deg, #242936, #171922);
+      text-align: center;
+      font-size: .86rem;
+    }
+    .demo-placeholder img { width: min(52%, 260px); opacity: .9; box-shadow: 0 18px 30px rgba(0,0,0,.24); }
+    .demo-placeholder::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--coral); box-shadow: 0 0 0 6px rgba(255,104,102,.12); }
+    .demo-frame:not(.is-loading) .demo-placeholder { display: none; }
+    .demo-frame.is-failed .demo-placeholder span::after { content: ' Please refresh to try again.'; }
 
     .rail { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
     .features { display: grid; grid-template-columns: repeat(3, 1fr); }
@@ -198,8 +221,12 @@
         </div>
       </div>
       <div class="demo-shell">
-        <div class="demo-frame">
-          <img src="powermenu-480p.gif" alt="Animated demo of the Alt+F4 Power Menu and its settings">
+        <div class="demo-frame is-loading" id="demo-frame">
+          <div class="demo-placeholder" aria-live="polite">
+            <img src="power-dialog.png" alt="">
+            <span>The demo animation may take a moment to load.</span>
+          </div>
+          <img class="demo-gif" src="powermenu-480p.gif" alt="Animated demo of the Alt+F4 Power Menu and its settings">
         </div>
       </div>
     </section>
@@ -232,5 +259,12 @@
       <a href="https://github.com/AlphaBeast97/gnome-altf4-menu">Open source on GitHub ↗</a>
     </div>
   </footer>
+  <script>
+    const demo = document.querySelector('.demo-gif');
+    const frame = document.querySelector('#demo-frame');
+    demo.addEventListener('load', () => frame.classList.remove('is-loading'));
+    demo.addEventListener('error', () => frame.classList.add('is-failed'));
+    if (demo.complete) frame.classList.remove('is-loading');
+  </script>
 </body>
 </html>
