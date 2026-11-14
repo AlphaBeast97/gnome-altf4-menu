@@ -17,7 +17,12 @@ fi
 WORKDIR=$(mktemp -d "${TMPDIR:-/tmp}/altf4-smoke.XXXXXX")
 
 cleanup() {
-  rm -rf "${WORKDIR}"
+  for _ in $(seq 1 20); do
+    rm -rf "${WORKDIR}" 2>/dev/null || true
+    [[ ! -e "${WORKDIR}" ]] && return
+    sleep 0.25
+  done
+  rm -rf "${WORKDIR}" 2>/dev/null || true
 }
 trap cleanup EXIT
 
