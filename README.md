@@ -7,7 +7,7 @@
 
 <p align="center"><em>The demo animation may take a moment to load.</em></p>
 <p align="center">
-  <img src="docs/powermenu-480p.gif" alt="Alt+F4 Power Menu demo" width="608">
+  <img src="docs/powermenu-480p-optimized.gif" alt="Alt+F4 Power Menu demo" width="608">
 </p>
 
 <p align="center"><em>Blur My Shell is recommended for the blurred backdrop shown in this demo.</em></p>
