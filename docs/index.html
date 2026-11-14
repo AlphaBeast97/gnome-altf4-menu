@@ -93,6 +93,9 @@
     .button:hover { transform: translateY(-2px); border-color: rgba(245,243,238,.35); background: rgba(245,243,238,.06); }
     .button.primary { border-color: var(--coral); color: #1b1115; background: var(--coral); }
     .button.primary:hover { border-color: #ff8582; background: #ff8582; }
+    .button.star { border-color: rgba(184,167,255,.4); color: var(--lavender); }
+    .button.star:hover { border-color: var(--lavender); background: rgba(184,167,255,.1); }
+    .star-count { margin-left: .35rem; color: var(--ink); font-variant-numeric: tabular-nums; }
     .demo-shell { position: relative; }
     .demo-shell::before {
       content: 'LIVE DEMO';
@@ -218,6 +221,7 @@
         <div class="actions">
           <a class="button primary" href="https://extensions.gnome.org/extension/11716/altf4-power-menu/">Install for GNOME</a>
           <a class="button" href="https://github.com/AlphaBeast97/gnome-altf4-menu">View source</a>
+          <a class="button star" href="https://github.com/AlphaBeast97/gnome-altf4-menu" aria-label="Star Alt+F4 Power Menu on GitHub">☆ Star on GitHub <span class="star-count" id="star-count">—</span></a>
         </div>
       </div>
       <div class="demo-shell">
@@ -265,6 +269,15 @@
     demo.addEventListener('load', () => frame.classList.remove('is-loading'));
     demo.addEventListener('error', () => frame.classList.add('is-failed'));
     if (demo.complete) frame.classList.remove('is-loading');
+
+    fetch('https://api.github.com/repos/AlphaBeast97/gnome-altf4-menu')
+      .then(response => response.ok ? response.json() : Promise.reject())
+      .then(repo => {
+        document.querySelector('#star-count').textContent = repo.stargazers_count.toLocaleString();
+      })
+      .catch(() => {
+        document.querySelector('#star-count').textContent = '';
+      });
   </script>
 </body>
 </html>
