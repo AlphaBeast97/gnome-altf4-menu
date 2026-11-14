@@ -14,7 +14,7 @@ A GNOME Shell extension that brings Windows-style Alt+F4 behavior to GNOME:
 - With an application focused, Alt+F4 closes the window as usual.
 - On the desktop or in the overview, Alt+F4 opens a centered power menu.
 - The shortcut is configurable in the extension's settings and defaults to
-  Alt+F4.
+  Alt+F4. Choose any shortcut combination with a modifier key.
 - The power-menu actions can be enabled or hidden individually.
 - Power-menu actions can be reordered by dragging them in the extension's
   settings.
@@ -69,9 +69,9 @@ gnome-extensions info altf4-power-menu@alphabeast97.github.io
 ## Shortcut
 
 Open the extension's settings (Extensions → Alt+F4 Power Menu → Settings),
-click the shortcut row, and press the new combination. A modifier key
-(Shift, Ctrl, Alt or Super) is required. The chosen shortcut replaces Alt+F4,
-and the Reset button restores Alt+F4.
+click the shortcut row, and press the new combination. Any combination with a
+modifier key (Shift, Ctrl, Alt or Super) is supported. The chosen shortcut
+replaces Alt+F4, and the Reset button restores Alt+F4.
 
 The shortcut only opens the menu on the desktop or in the overview. With a
 window focused, it is left to the application and GNOME.
