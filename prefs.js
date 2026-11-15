@@ -56,27 +56,9 @@ export default class AltF4PowerMenuPreferences extends ExtensionPreferences {
       const dialog = new Adw.Window({
         transient_for: window,
         modal: true,
-        title: 'Press the new shortcut',
+         title: 'Choose shortcut',
         default_width: 420,
         resizable: false,
-      });
-
-      const hint = new Gtk.Label({
-        label: 'With Super, Ctrl or Alt',
-        css_classes: ['dim-label'],
-        justify: Gtk.Justification.CENTER,
-      });
-      const instruction = new Gtk.Label({
-        label: 'Hold a modifier with another key',
-        css_classes: ['dim-label'],
-        wrap: true,
-        justify: Gtk.Justification.CENTER,
-      });
-      const caveat = new Gtk.Label({
-        label: 'Alt+F4 closes this dialog, so use the button below to choose it.',
-        css_classes: ['dim-label'],
-        wrap: true,
-        justify: Gtk.Justification.CENTER,
       });
 
       const useDefault = new Gtk.Button({label: 'Use Alt+F4'});
@@ -141,10 +123,7 @@ export default class AltF4PowerMenuPreferences extends ExtensionPreferences {
       icon.add_css_class('large-icons');
       box.append(icon);
       box.append(title);
-      box.append(hint);
-      box.append(instruction);
       box.append(hints);
-      box.append(caveat);
       box.append(buttons);
 
       const toolbar = new Adw.ToolbarView();
@@ -170,10 +149,8 @@ export default class AltF4PowerMenuPreferences extends ExtensionPreferences {
           return true;
 
         const mods = modifiersFromState(state);
-        if (!mods) {
-          hint.label = 'Hold a modifier with another key';
+        if (!mods)
           return true;
-        }
 
         save(keyval, mods);
         dialog.close();
