@@ -188,8 +188,9 @@ export default class AltF4PowerMenuExtension extends Extension {
       can_focus: true,
     });
     this._selector.connect('clicked', () => this._toggleOptions());
-    this._selector.connect(
-      'key-press-event', this._onSelectorKeyPress.bind(this));
+    const keyController = new Clutter.KeyController();
+    keyController.connect('key-press', this._onSelectorKeyPress.bind(this));
+    this._selector.add_action(keyController);
 
     dialog.contentLayout.add_child(this._selector);
     dialog.contentLayout.add_child(this._options);
@@ -273,11 +274,8 @@ export default class AltF4PowerMenuExtension extends Extension {
     this._systemActions[action.activate]();
   }
 
-  _onSelectorKeyPress(_selector, event) {
-    if (event.type() !== Clutter.EventType.KEY_PRESS)
-      return Clutter.EVENT_PROPAGATE;
-
-    const symbol = event.get_key_symbol();
+  _onSelectorKeyPress(controller) {
+    const [, symbol] = controller.get_key();
 
     const isEnter = symbol === Clutter.KEY_Return ||
       symbol === Clutter.KEY_KP_Enter ||

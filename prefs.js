@@ -34,6 +34,7 @@ const MODIFIER_KEYVALS = new Set([
 export default class AltF4PowerMenuPreferences extends ExtensionPreferences {
   fillPreferencesWindow(window) {
     const settings = this.getSettings();
+    const settingsChangedIds = [];
     const shortcutLabel = new Gtk.ShortcutLabel({valign: Gtk.Align.CENTER});
     const shortcutRow = new Adw.ActionRow({
       title: 'Shortcut',
@@ -262,8 +263,14 @@ export default class AltF4PowerMenuPreferences extends ExtensionPreferences {
         actionSwitches.get(id).set_active(visible.includes(id));
       refreshActionRows();
     }
-    settings.connect('changed::visible-actions', refreshPreferences);
-    settings.connect('changed::action-order', refreshPreferences);
+    settingsChangedIds.push(
+      settings.connect('changed::visible-actions', refreshPreferences),
+      settings.connect('changed::action-order', refreshPreferences));
+    window.connect('close-request', () => {
+      for (const handlerId of settingsChangedIds)
+        settings.disconnect(handlerId);
+      return false;
+    });
 
     const page = new Adw.PreferencesPage();
     page.add(group);
