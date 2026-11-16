@@ -1,4 +1,5 @@
 import Clutter from 'gi://Clutter';
+import Meta from 'gi://Meta';
 import St from 'gi://St';
 
 import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
@@ -93,8 +94,11 @@ export default class AltF4PowerMenuExtension extends Extension {
       this._shortcutKeyval, this._shortcutMods))
       return Clutter.EVENT_PROPAGATE;
 
+    const focusWindow = global.display.focus_window;
+    const hasFocusWindow = focusWindow !== null &&
+      focusWindow.get_window_type() !== Meta.WindowType.DESKTOP;
     if (!shouldHandleAltF4({
-      hasFocusWindow: global.display.focus_window !== null,
+      hasFocusWindow,
       overviewVisible: Main.overview.visible,
     }))
       return Clutter.EVENT_PROPAGATE;
