@@ -46,36 +46,26 @@ export default class AltF4PowerMenuExtension extends Extension {
     this._ensureShortcutBinding();
     this._globalShortcutRegistered = false;
     this._updateGlobalShortcut();
-    this._settingsChangedId = this._settings.connect('changed', (_settings, key) => {
+    this._settings.connectObject('changed', (_settings, key) => {
       if (key === 'shortcut-binding' && this._globalShortcutRegistered)
         this._removeGlobalShortcut();
       if (key === 'allow-focused-window' || key === 'shortcut-binding')
         this._updateGlobalShortcut();
-    });
-    this._stageKeyPressId = global.stage.connect(
-      'key-press-event', this._onStageKeyPress.bind(this));
+    }, global.stage);
+    global.stage.connectObject(
+      'key-press-event', this._onStageKeyPress.bind(this), this._settings);
     this._resetDialogState();
   }
 
   disable() {
-    if (this._stageKeyPressId) {
-      global.stage.disconnect(this._stageKeyPressId);
-      this._stageKeyPressId = 0;
-    }
-
-    if (this._settingsChangedId) {
-      this._settings.disconnect(this._settingsChangedId);
-      this._settingsChangedId = 0;
-    }
+    global.stage.disconnectObject(this._settings);
+    this._settings.disconnectObject(global.stage);
 
     this._removeGlobalShortcut();
 
     if (this._dialog) {
       const dialog = this._dialog;
-      if (this._dialogDestroyId) {
-        dialog.disconnect(this._dialogDestroyId);
-        this._dialogDestroyId = 0;
-      }
+      dialog.disconnectObject(this._settings);
       this._dialog = null;
       this._destroyDialogWidgets(dialog);
       dialog.popModal();
@@ -95,9 +85,6 @@ export default class AltF4PowerMenuExtension extends Extension {
     this._selectorLabel = null;
     this._chevron = null;
     this._options = null;
-    this._selectorClickedId = 0;
-    this._selectorKeySignalId = 0;
-    this._dialogDestroyId = 0;
   }
 
   _destroyDialogWidgets(dialog) {
@@ -108,14 +95,13 @@ export default class AltF4PowerMenuExtension extends Extension {
       row.destroy();
     }
 
-    if (this._selector && this._selectorClickedId)
-      this._selector.disconnect(this._selectorClickedId);
+    this._selector?.disconnectObject(dialog);
     const keyController = this._selector?.get_actions().find(
       action => action instanceof Clutter.KeyController);
-    if (keyController && this._selectorKeySignalId)
-      keyController.disconnect(this._selectorKeySignalId);
-    if (keyController)
+    if (keyController) {
+      keyController.disconnectObject(dialog);
       this._selector.remove_action(keyController);
+    }
 
     this._selectorIcon?.destroy();
     this._selectorLabel?.destroy();
@@ -263,11 +249,11 @@ export default class AltF4PowerMenuExtension extends Extension {
       x_expand: true,
       can_focus: true,
     });
-    this._selectorClickedId = this._selector.connect(
-      'clicked', () => this._toggleOptions());
+    this._selector.connectObject(
+      'clicked', () => this._toggleOptions(), dialog);
     const keyController = new Clutter.KeyController();
-    this._selectorKeySignalId = keyController.connect(
-      'key-press', this._onSelectorKeyPress.bind(this));
+    keyController.connectObject(
+      'key-press', this._onSelectorKeyPress.bind(this), dialog);
     this._selector.add_action(keyController);
 
     dialog.contentLayout.add_child(this._selector);
@@ -286,16 +272,13 @@ export default class AltF4PowerMenuExtension extends Extension {
     });
 
     this._dialog = dialog;
-    this._dialogDestroyId = dialog.connect('destroy', () => {
-      if (this._dialogDestroyId) {
-        dialog.disconnect(this._dialogDestroyId);
-        this._dialogDestroyId = 0;
-      }
+    dialog.connectObject('destroy', () => {
+      dialog.disconnectObject(this._settings);
       this._destroyDialogWidgets(dialog);
       if (this._dialog === dialog)
         this._dialog = null;
       this._resetDialogState();
-    });
+    }, this._settings);
 
     if (!dialog.open()) {
       dialog.destroy();
