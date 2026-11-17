@@ -1,7 +1,7 @@
 {
   "uuid": "altf4-power-menu@alphabeast97.github.io",
   "name": "Alt+F4 Power Menu",
-  "description": "Opens a power menu with a configurable shortcut on the desktop or overview. An optional setting makes the shortcut open it over focused app windows.",
+  "description": "Opens a power menu with a configurable shortcut on the desktop or overview. Optional settings allow opening it over focused windows and skipping GNOME's extra confirmation for Log Out, Restart, and Power Off.",
   "shell-version": ["46", "47", "48", "49", "50", "51"],
   "settings-schema": "org.gnome.shell.extensions.altf4-power-menu",
   "url": "https://github.com/AlphaBeast97/gnome-altf4-menu"

@@ -37,6 +37,11 @@ Cancel any destructive confirmation dialog instead of confirming it.
 - [x] Clicking outside the dialog does not close or pass through it.
 - [x] Each of the six actions starts GNOME's native behavior or confirmation
       dialog: Lock Screen, Switch User, Log Out, Suspend, Restart, Power Off.
+- [x] With **Skip confirmation dialogs** disabled, Log Out, Restart, and Power
+      Off use GNOME's confirmation flow.
+- [x] With **Skip confirmation dialogs** enabled, Log Out, Restart, and Power
+      Off skip GNOME's extra confirmation; Lock Screen, Switch User, and Suspend
+      still perform their normal actions.
 - [x] After running an action and reopening the menu, that action is
       preselected.
 - [x] The last action survives a shell restart.

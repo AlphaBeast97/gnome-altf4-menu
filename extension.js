@@ -1,4 +1,6 @@
 import Clutter from 'gi://Clutter';
+import Gio from 'gi://Gio';
+import GLib from 'gi://GLib';
 import Meta from 'gi://Meta';
 import Shell from 'gi://Shell';
 import St from 'gi://St';
@@ -337,7 +339,58 @@ export default class AltF4PowerMenuExtension extends Extension {
 
     this._settings.set_string('last-action', action.id);
     this._dialog?.close();
+
+    if (this._settings.get_boolean('skip-confirmations') &&
+        this._activateWithoutConfirmation(action.id))
+      return;
+
     this._systemActions[action.activate]();
+  }
+
+  _activateWithoutConfirmation(actionId) {
+    let bus;
+    let busName;
+    let path;
+    let iface;
+    let method;
+    let parameters;
+
+    if (actionId === 'logout') {
+      bus = Gio.DBus.session;
+      busName = 'org.gnome.SessionManager';
+      path = '/org/gnome/SessionManager';
+      iface = 'org.gnome.SessionManager';
+      method = 'Logout';
+      // GNOME Session Manager flag 1 suppresses only its confirmation UI.
+      parameters = new GLib.Variant('(u)', [1]);
+    } else if (actionId === 'restart' || actionId === 'power-off') {
+      bus = Gio.DBus.system;
+      busName = 'org.freedesktop.login1';
+      path = '/org/freedesktop/login1';
+      iface = 'org.freedesktop.login1.Manager';
+      method = actionId === 'restart' ? 'Reboot' : 'PowerOff';
+      // Keep logind's normal inhibitor and shutdown handling; do not request
+      // an interactive authorization prompt.
+      parameters = new GLib.Variant('(b)', [false]);
+    } else {
+      // Lock Screen, Switch User and Suspend do not show this extra prompt.
+      return false;
+    }
+
+    const systemActions = this._systemActions;
+    bus.call(busName, path, iface, method, parameters, null,
+      Gio.DBusCallFlags.NONE, -1, null, (connection, result) => {
+        try {
+          connection.call_finish(result);
+        } catch (error) {
+          console.error(`Alt+F4 Power Menu: ${method} request failed: ${error.message}`);
+          // Preserve GNOME's normal action path if the D-Bus request fails.
+          const action = POWER_ACTIONS.find(item => item.id === actionId);
+          if (action && systemActions)
+            systemActions[action.activate]();
+        }
+      });
+    return true;
   }
 
   _onSelectorKeyPress(controller) {

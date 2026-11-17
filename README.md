@@ -35,6 +35,10 @@ It offers Lock Screen, Switch User…, Log Out…, Suspend, Restart…, and Powe
 Off…. It uses GNOME's own `SystemActions`, so unavailable actions are omitted
 and GNOME's native confirmation dialogs are used.
 
+The optional **Skip confirmation dialogs** setting is off by default. When
+enabled, Log Out, Restart, and Power Off skip GNOME's additional confirmation
+dialog. Lock Screen, Switch User, and Suspend do not show that extra dialog.
+
 ## Power-menu options
 
 Open the extension's settings and use the switches under **Visible options** to

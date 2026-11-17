@@ -207,6 +207,29 @@ export default class AltF4PowerMenuPreferences extends ExtensionPreferences {
     group.add(resetRow);
     group.add(focusedWindowRow);
 
+    const skipConfirmationsRow = new Adw.ActionRow({
+      title: 'Skip confirmation dialogs',
+      subtitle: 'Log Out, Restart, and Power Off run without GNOME’s extra ' +
+        'confirmation. Other actions do not show this extra prompt.',
+      activatable: true,
+    });
+    const skipConfirmationsSwitch = new Gtk.Switch({
+      valign: Gtk.Align.CENTER,
+      active: settings.get_boolean('skip-confirmations'),
+    });
+    skipConfirmationsSwitch.connect('notify::active', () => {
+      settings.set_boolean('skip-confirmations',
+        skipConfirmationsSwitch.active);
+    });
+    skipConfirmationsRow.add_suffix(skipConfirmationsSwitch);
+    skipConfirmationsRow.activatable_widget = skipConfirmationsSwitch;
+    settingsChangedIds.push(settings.connect(
+      'changed::skip-confirmations', () => {
+        skipConfirmationsSwitch.set_active(
+          settings.get_boolean('skip-confirmations'));
+      }));
+    group.add(skipConfirmationsRow);
+
     const actionsGroup = new Adw.PreferencesGroup({
       title: 'Visible options',
       description: 'Choose which actions appear in the power menu. Drag to reorder.',

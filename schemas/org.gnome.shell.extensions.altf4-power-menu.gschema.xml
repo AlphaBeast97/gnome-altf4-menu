@@ -27,6 +27,11 @@
       <summary>Always open the menu from the shortcut</summary>
       <description>When enabled, the configured shortcut opens the power menu immediately regardless of the focused window.</description>
     </key>
+    <key name="skip-confirmations" type="b">
+      <default>false</default>
+      <summary>Skip confirmation dialogs</summary>
+      <description>When enabled, Log Out, Restart, and Power Off skip GNOME's confirmation dialog. Other actions do not show this extra confirmation.</description>
+    </key>
     <key name="visible-actions" type="as">
       <default>['lock-screen', 'switch-user', 'logout', 'suspend', 'restart', 'power-off']</default>
       <summary>Visible power menu actions</summary>
