@@ -50,6 +50,8 @@ export default class AltF4PowerMenuPreferences extends ExtensionPreferences {
     function save(keyval, mods) {
       settings.set_uint('shortcut-keysym', keyval);
       settings.set_uint('shortcut-mods', mods);
+      settings.set_strv('shortcut-binding', keyval ? [Gtk.accelerator_name(
+        keyval, modifiersToGdk(mods))] : []);
       updateLabel();
     }
 
@@ -176,12 +178,34 @@ export default class AltF4PowerMenuPreferences extends ExtensionPreferences {
     resetRow.add_suffix(resetButton);
     resetRow.activatable_widget = resetButton;
 
+    const focusedWindowRow = new Adw.ActionRow({
+      title: 'Always open from shortcut',
+      subtitle: 'When enabled, the configured shortcut opens the power menu ' +
+        'immediately, regardless of the focused window.',
+      activatable: true,
+    });
+    const focusedWindowSwitch = new Gtk.Switch({
+      valign: Gtk.Align.CENTER,
+      active: settings.get_boolean('allow-focused-window'),
+    });
+    focusedWindowSwitch.connect('notify::active', () => {
+      settings.set_boolean('allow-focused-window', focusedWindowSwitch.active);
+    });
+    focusedWindowRow.add_suffix(focusedWindowSwitch);
+    focusedWindowRow.activatable_widget = focusedWindowSwitch;
+    settingsChangedIds.push(settings.connect(
+      'changed::allow-focused-window', () => {
+        focusedWindowSwitch.set_active(
+          settings.get_boolean('allow-focused-window'));
+      }));
+
     const group = new Adw.PreferencesGroup({
       title: 'Power Menu',
-      description: 'Opens the power menu on the desktop or in the overview.',
+      description: 'Configure how and when the power menu opens.',
     });
     group.add(shortcutRow);
     group.add(resetRow);
+    group.add(focusedWindowRow);
 
     const actionsGroup = new Adw.PreferencesGroup({
       title: 'Visible options',

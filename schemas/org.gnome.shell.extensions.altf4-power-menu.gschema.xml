@@ -17,6 +17,16 @@
       <summary>Power menu shortcut modifiers</summary>
       <description>Shift=1, Control=2, Alt=4, Super=8. The default is Alt.</description>
     </key>
+    <key name="shortcut-binding" type="as">
+      <default>[]</default>
+      <summary>Global power menu shortcut</summary>
+      <description>Accelerator used when opening the power menu over focused windows.</description>
+    </key>
+    <key name="allow-focused-window" type="b">
+      <default>false</default>
+      <summary>Always open the menu from the shortcut</summary>
+      <description>When enabled, the configured shortcut opens the power menu immediately regardless of the focused window.</description>
+    </key>
     <key name="visible-actions" type="as">
       <default>['lock-screen', 'switch-user', 'logout', 'suspend', 'restart', 'power-off']</default>
       <summary>Visible power menu actions</summary>
