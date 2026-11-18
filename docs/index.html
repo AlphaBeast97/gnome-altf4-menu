@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Alt+F4 Power Menu brings a Windows-style power menu to GNOME Shell.">
+  <meta name="description" content="A configurable GNOME Shell power menu with a custom shortcut, reorderable actions, and optional confirmation skipping.">
   <meta name="theme-color" content="#111318">
   <link rel="icon" href="icon.png" type="image/png">
-  <title>Alt+F4 Power Menu — A better way to power down</title>
+  <title>Alt+F4 Power Menu — A better Alt+F4 for GNOME</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
 
@@ -37,6 +37,19 @@
 
     a { color: inherit; }
     .wrap { width: min(calc(100% - 3rem), var(--max)); margin: 0 auto; }
+    .skip-link {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 5;
+      padding: .65rem 1rem;
+      transform: translateY(-160%);
+      border-radius: 8px;
+      color: var(--night);
+      background: var(--ink);
+      font-weight: 600;
+    }
+    .skip-link:focus { transform: translateY(0); }
     .topbar {
       display: flex;
       align-items: center;
@@ -95,7 +108,7 @@
     .button.primary:hover { border-color: #ff8582; background: #ff8582; }
     .demo-shell { position: relative; }
     .demo-shell::before {
-      content: 'LIVE DEMO';
+      content: 'ANIMATED DEMO';
       position: absolute;
       top: -1.1rem;
       right: 1.4rem;
@@ -166,6 +179,30 @@
     .callout { margin-top: 2rem; padding: 1.1rem 1.25rem; border-left: 2px solid var(--lavender); background: rgba(184,167,255,.06); color: var(--muted); font-size: .92rem; }
     .callout strong { color: var(--ink); }
 
+    .settings-showcase {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      align-items: center;
+      gap: clamp(3rem, 7vw, 6rem);
+      padding: 1rem 0 8rem;
+    }
+    .settings-copy { max-width: 520px; }
+    .settings-copy h2 { max-width: 470px; margin: 0; font-size: clamp(2.2rem, 4vw, 4rem); }
+    .settings-copy p { margin: 1.4rem 0; color: var(--muted); }
+    .settings-list { display: grid; gap: .85rem; margin: 1.6rem 0 0; padding: 0; list-style: none; }
+    .settings-list li { display: flex; gap: .8rem; color: var(--muted); }
+    .settings-list li::before { width: 6px; height: 6px; flex: 0 0 6px; margin-top: .7em; border-radius: 50%; background: var(--coral); content: ''; }
+    .settings-shot { width: min(100%, 470px); margin: 0 auto; }
+    .settings-shot img {
+      width: 100%;
+      height: auto;
+      border: 1px solid rgba(245,243,238,.2);
+      border-radius: 15px;
+      box-shadow: 17px 20px 0 rgba(0,0,0,.18), 0 30px 70px rgba(0,0,0,.3);
+    }
+    .settings-shot figcaption { margin-top: 1rem; color: var(--subtle); font-size: .82rem; text-align: center; }
+    .settings-note { display: inline-block; margin-top: 1.4rem; padding: .35rem .7rem; border: 1px solid var(--line); border-radius: 99px; color: var(--muted); font-size: .82rem; }
+
     footer { border-top: 1px solid var(--line); }
     .footer-inner { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 2rem 0 2.4rem; color: var(--subtle); font-size: .88rem; }
     .footer-inner a { color: var(--muted); text-underline-offset: 3px; }
@@ -176,11 +213,13 @@
       .hero { min-height: 0; padding: 4rem 0 5rem; }
       .demo-shell { max-width: 680px; margin: 0 auto; }
       .story { padding: 5rem 0; }
+      .settings-showcase { grid-template-columns: 1fr; gap: 3rem; padding: 1rem 0 5rem; }
     }
     @media (max-width: 560px) {
       .wrap { width: min(calc(100% - 2rem), var(--max)); }
       .topbar { min-height: 70px; }
       nav a:first-child { display: none; }
+      nav a[href="#settings"] { display: none; }
       h1 { font-size: clamp(3rem, 16vw, 4.5rem); }
       .features { grid-template-columns: 1fr; }
       .feature, .feature + .feature { padding: 1.35rem 0; border-right: 0; border-bottom: 1px solid var(--line); }
@@ -197,6 +236,7 @@
   </style>
 </head>
 <body>
+  <a class="skip-link" href="#main">Skip to content</a>
   <header class="topbar wrap">
     <a class="brand" href="./" aria-label="Alt+F4 Power Menu home">
       <img src="icon.png" alt="">
@@ -204,16 +244,17 @@
     </a>
     <nav aria-label="Primary navigation">
       <a href="#why">Why it exists</a>
+      <a href="#settings">Preferences</a>
       <a href="https://extensions.gnome.org/extension/11716/altf4-power-menu/">Install</a>
       <a href="https://github.com/AlphaBeast97/gnome-altf4-menu">GitHub</a>
     </nav>
   </header>
 
-  <main>
-    <section class="hero wrap">
+  <main id="main">
+    <section class="hero wrap" aria-labelledby="hero-title">
       <div>
         <div class="eyebrow">A GNOME Shell extension</div>
-        <h1>A better <em>Alt+F4</em> for your desktop.</h1>
+        <h1 id="hero-title">A better <em>Alt+F4</em> for your desktop.</h1>
         <p class="lede">Close the focused window as usual. On the desktop or in the overview, open a fast, configurable power menu with the shortcut combination you choose.</p>
         <div class="actions">
           <a class="button primary" href="https://extensions.gnome.org/extension/11716/altf4-power-menu/">Install for GNOME</a>
@@ -226,7 +267,10 @@
             <img src="power-dialog.png" alt="">
             <span>The demo animation may take a moment to load.</span>
           </div>
-          <img class="demo-gif" src="powermenu-480p-optimized.gif" alt="Animated demo of the Alt+F4 Power Menu and its settings">
+          <picture>
+            <source media="(prefers-reduced-motion: reduce)" srcset="screenshot.png">
+            <img class="demo-gif" src="powermenu-480p-optimized.gif" alt="Animated preview of Alt+F4 Power Menu on the GNOME desktop" width="608" height="480" fetchpriority="high">
+          </picture>
         </div>
       </div>
     </section>
@@ -246,10 +290,29 @@
       </div>
       <div class="story-copy">
         <p>Alt+F4 Power Menu brings a Windows-style power dialog to GNOME without getting in the way of the desktop. Use Alt+F4 or choose another shortcut combination in Settings, then pick an action with the keyboard or mouse.</p>
-        <p>Lock Screen, Switch User, Log Out, Suspend, Restart, and Power Off are backed by GNOME’s system actions. Unavailable actions disappear automatically. An optional setting, off by default, skips GNOME’s extra confirmation for Log Out, Restart, and Power Off.</p>
+        <p>Lock Screen, Switch User, Log Out, Suspend, Restart, and Power Off are backed by GNOME’s system actions. Unavailable actions disappear automatically, and your last selection is remembered. An optional setting, off by default, skips GNOME’s extra confirmation for Log Out, Restart, and Power Off.</p>
         <div class="keyline"><kbd>Alt</kbd><span>+</span><kbd>F4</kbd><span>opens the menu on the desktop</span></div>
         <div class="callout"><strong>Recommended pairing:</strong> install <a href="https://extensions.gnome.org/extension/3193/blur-my-shell/">Blur My Shell</a> for the soft popup backdrop shown in the demo.</div>
       </div>
+    </section>
+
+    <section class="settings-showcase wrap" id="settings" aria-labelledby="settings-title">
+      <div class="settings-copy">
+        <div class="eyebrow">Make it yours</div>
+        <h2 id="settings-title">Your menu. Your shortcut. Your call.</h2>
+        <p>Shape the power menu around the way you use GNOME, right from the extension preferences.</p>
+        <ul class="settings-list">
+          <li>Pick a modifier-based shortcut and choose which actions appear.</li>
+          <li>Drag actions into the order you want.</li>
+          <li>Keep the usual close-window behavior, or make the shortcut open the menu over apps.</li>
+          <li>Optionally skip GNOME’s extra confirmation for Log Out, Restart, and Power Off.</li>
+        </ul>
+        <span class="settings-note">Confirmation skipping is off by default</span>
+      </div>
+      <figure class="settings-shot">
+        <img src="settings%20menu.png" alt="Alt+F4 Power Menu preferences showing shortcut controls, always-open mode, confirmation skipping, and action visibility switches" width="756" height="876" loading="lazy">
+        <figcaption>Preferences shown with confirmation skipping enabled as an example.</figcaption>
+      </figure>
     </section>
   </main>
 

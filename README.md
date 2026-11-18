@@ -12,6 +12,25 @@
 
 <p align="center"><em>Blur My Shell is recommended for the blurred backdrop shown in this demo.</em></p>
 
+## Preferences
+
+<p align="center">
+  <img src="docs/settings%20menu.png" alt="Alt+F4 Power Menu preferences showing shortcut controls, always-open mode, confirmation skipping, and visible actions" width="540">
+</p>
+<p align="center"><em>Confirmation skipping is shown enabled in this screenshot; it is off by default.</em></p>
+
+Configure the extension from its preferences:
+
+- **Shortcut:** choose a modifier-based key combination. Alt+F4 is the default.
+- **Always open from shortcut:** when enabled, the configured shortcut opens the
+  power menu immediately even while an application window is focused. It is off
+  by default; with it off, the shortcut opens the menu on the desktop or in the
+  overview and keeps normal close-window behavior for focused apps.
+- **Skip confirmation dialogs:** optionally skip GNOME's extra confirmation for
+  Log Out, Restart, and Power Off. This is off by default.
+- **Visible options:** choose which actions appear, then drag to arrange their
+  order.
+
 A GNOME Shell extension that brings Windows-style Alt+F4 behavior to GNOME:
 
 - With an application focused, Alt+F4 closes the window as usual.
