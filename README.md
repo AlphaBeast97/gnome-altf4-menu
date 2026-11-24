@@ -7,7 +7,7 @@
 
 <p align="center"><em>The demo animation may take a moment to load.</em></p>
 <p align="center">
-  <video src="https://github.com/user-attachments/assets/f457a447-7738-447a-af50-c90a111b59cb.mp4" width="100%" autoplay loop muted playsinline controls></video>
+  <video src="https://github.com/user-attachments/assets/e32410a5-141f-4c44-83f4-2032bb611515" width="100%" autoplay loop muted playsinline controls></video>
 </p>
 
 <p align="center"><em>Blur My Shell is recommended for the blurred backdrop shown in this demo.</em></p>
