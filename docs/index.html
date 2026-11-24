@@ -132,7 +132,7 @@
       transform: rotate(1.5deg);
     }
     .demo-frame::after { content: ''; position: absolute; inset: .8rem; border: 1px solid rgba(184,167,255,.2); border-radius: 10px; pointer-events: none; }
-    .demo-frame img { display: block; width: 100%; height: auto; border-radius: 10px; }
+    .demo-frame img, .demo-frame video { display: block; width: 100%; height: auto; border-radius: 10px; }
     .demo-gif { position: relative; z-index: 1; transition: opacity .35s ease; }
     .demo-frame.is-loading .demo-gif { opacity: 0; }
     .demo-placeholder {
@@ -267,10 +267,7 @@
             <img src="power-dialog.png" alt="">
             <span>The demo animation may take a moment to load.</span>
           </div>
-          <picture>
-            <source media="(prefers-reduced-motion: reduce)" srcset="screenshot.png">
-            <img class="demo-gif" src="powermenu-480p-optimized.gif" alt="Animated preview of Alt+F4 Power Menu on the GNOME desktop" width="608" height="480" fetchpriority="high">
-          </picture>
+          <video class="demo-gif" src="web_powermenu.mp4" poster="screenshot.png" width="608" height="480" autoplay loop muted playsinline preload="auto" disablepictureinpicture aria-label="Animated preview of Alt+F4 Power Menu on the GNOME desktop"></video>
         </div>
       </div>
     </section>
@@ -325,9 +322,10 @@
   <script>
     const demo = document.querySelector('.demo-gif');
     const frame = document.querySelector('#demo-frame');
-    demo.addEventListener('load', () => frame.classList.remove('is-loading'));
+    demo.addEventListener('loadeddata', () => frame.classList.remove('is-loading'));
     demo.addEventListener('error', () => frame.classList.add('is-failed'));
-    if (demo.complete) frame.classList.remove('is-loading');
+    if (demo.readyState >= 2) frame.classList.remove('is-loading');
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) { demo.removeAttribute('autoplay'); demo.pause(); }
   </script>
 </body>
 </html>
